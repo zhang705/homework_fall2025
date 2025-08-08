@@ -1,4 +1,5 @@
 \documentclass[12pt,oneside]{book}
+\usepackage[UTF8]{ctex}
 \usepackage{amsmath}
 \usepackage{color}
 \usepackage[margin=1.00in]{geometry} 
@@ -106,18 +107,67 @@
 
 \section{Analysis}
 
-\subsection{2.1}
-
-This is the first homework assignment for CS285.
-
-\section{Problem 1}
-
 \subsection{Part A}
 
-Your solution here.
+这个作业相当于是slide里条件的弱化版本，slides里的条件是每个状态不等于专家状态的概率都为$\epsilon$，这里只是期望小于
+$\epsilon$。
+
+假设如下条件成立：
+\begin{equation}
+    \mathbb{E}_{p_{\pi^*}(s)} \left[\pi_{\theta}(a \ne \pi^*(s) \mid s)\right] 
+    = \frac{1}{T} \sum_{t=1}^{T} \mathbb{E}_{p_{\pi^*}(s_t)} \left[\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)\right]
+    \leq \epsilon
+\end{equation}
+在t时刻，$s_t$的状态分布为：
+\begin{align}
+    p_{\theta}(s_t) = 
+    &(1 - Pr[\cup_{t=1}^{t}(\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)]) p_{\pi^*}(s_t) + \nonumber \\
+    &Pr[\cup_{t=1}^{t}(\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)]) p_{\text{mistake}}(s_t)
+\end{align}
+从两边同时减去$ p_{\pi^*}(s_t)$，得到：
+\begin{align}
+    |p_{\theta}(s_t) - p_{\pi^*}(s_t)| 
+    &= \Pr\left[\cup_{t'=1}^{t} \left(\pi_{\theta}(a_{t} \ne \pi^*(s_{t}) \mid s_{t})\right)\right] \cdot |p_{\text{mistake}}(s_t) - p_{\pi^*}(s_t)| \nonumber \\
+    &\leq 2\sum_{t=1}^{T}(\pi_{\theta}(a_{t'} \ne \pi^*(s_{t'}) \mid s_{t'}))
+\end{align}
+所以：
+\begin{align}
+    \sum_{s_t}|p_{\theta}(s_t) - p_{\pi^*}(s_t)| 
+    &\leq 2\sum_{t=1}^{T}\sum_{s_t}p_{\pi^*}(s_t)(\pi_{\theta}(a_{t} \ne \pi^*(s_{t}) \mid s_{t})) \nonumber \\
+    &= 2\sum_{t=1}^{T}E_{p_{\pi^*}(s_t)}[\pi_{\theta}(a_{t} \ne \pi^*(s_{t}) \mid s_{t})] \nonumber \\
+    &= 2T\epsilon
+\end{align}
+得证。
 
 \subsection{Part B}
+这个作业相当于是slide里条件的弱化版本，slides里的条件是每个状态不等于专家状态的概率都为$\epsilon$，这里只是期望小于
+$\epsilon$。
 
+假设如下条件成立：
+\begin{equation}
+    \mathbb{E}_{p_{\pi^*}(s)} \left[\pi_{\theta}(a \ne \pi^*(s) \mid s)\right] 
+    = \frac{1}{T} \sum_{t=1}^{T} \mathbb{E}_{p_{\pi^*}(s_t)} \left[\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)\right]
+    \leq \epsilon
+\end{equation}
+在t时刻，$s_t$的状态分布为：
+\begin{align}
+    p_{\theta}(s_t) = 
+    &(1 - Pr[\cup_{t=1}^{t}(\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)]) p_{\pi^*}(s_t) + \nonumber \\
+    &Pr[\cup_{t=1}^{t}(\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)]) p_{\text{mistake}}(s_t)
+\end{align}
+从两边同时减去$ p_{\pi^*}(s_t)$，得到：
+\begin{align}
+    |p_{\theta}(s_t) - p_{\pi^*}(s_t)| 
+    &= \Pr\left[\cup_{t'=1}^{t} \left(\pi_{\theta}(a_{t} \ne \pi^*(s_{t}) \mid s_{t})\right)\right] \cdot |p_{\text{mistake}}(s_t) - p_{\pi^*}(s_t)| \nonumber \\
+    &\leq 2\sum_{t=1}^{T}(\pi_{\theta}(a_{t'} \ne \pi^*(s_{t'}) \mid s_{t'}))
+\end{align}
+所以：
+\begin{align}
+    \sum_{s_t}|p_{\theta}(s_t) - p_{\pi^*}(s_t)| 
+    &\leq 2\sum_{t=1}^{T}\sum_{s_t}p_{\pi^*}(s_t)(\pi_{\theta}(a_{t} \ne \pi^*(s_{t}) \mid s_{t})) \nonumber \\
+    &= 2\sum_{t=1}^{T}E_{p_{\pi^*}(s_t)}[\pi_{\theta}(a_{t} \ne \pi^*(s_{t}) \mid s_{t})] \nonumber \\
+    &= 2T\epsilon
+\end{align}
 Your solution here.
 
 \section{Problem 2}
