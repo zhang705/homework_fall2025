@@ -87,7 +87,7 @@
 \titleformat{\subparagraph}[runin]
 {\normalfont\normalsize\bfseries}{\thesubparagraph}{1em}{}
 
-\def\Name{Harry Zhang}
+\def\Name{Ling Zhang}
 \title{The Homework of CS285\\
 \large Deep Reinforcement Learning}
 \author{\Name}
@@ -121,14 +121,14 @@ $\epsilon$。
 在t时刻，$s_t$的状态分布为：
 \begin{align}
     p_{\theta}(s_t) = 
-    &(1 - Pr[\cup_{t=1}^{t}(\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)]) p_{\pi^*}(s_t) + \nonumber \\
-    &Pr[\cup_{t=1}^{t}(\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)]) p_{\text{mistake}}(s_t)
+    &(1 - \Pr[\cup_{t=1}^{t}\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)]) p_{\pi^*}(s_t) + 
+    \Pr[\cup_{t=1}^{t}\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)] p_{\text{mistake}}(s_t)
 \end{align}
-从两边同时减去$ p_{\pi^*}(s_t)$，得到：
+两边同时减去$ p_{\pi^*}(s_t)$，得到：
 \begin{align}
     |p_{\theta}(s_t) - p_{\pi^*}(s_t)| 
     &= \Pr\left[\cup_{t'=1}^{t} \left(\pi_{\theta}(a_{t} \ne \pi^*(s_{t}) \mid s_{t})\right)\right] \cdot |p_{\text{mistake}}(s_t) - p_{\pi^*}(s_t)| \nonumber \\
-    &\leq 2\sum_{t=1}^{T}(\pi_{\theta}(a_{t'} \ne \pi^*(s_{t'}) \mid s_{t'}))
+    &\leq 2\sum_{t=1}^{T}(\pi_{\theta}(a_{t} \ne \pi^*(s_{t}) \mid s_{t}))
 \end{align}
 所以：
 \begin{align}
@@ -140,37 +140,54 @@ $\epsilon$。
 得证。
 
 \subsection{Part B}
-这个作业相当于是slide里条件的弱化版本，slides里的条件是每个状态不等于专家状态的概率都为$\epsilon$，这里只是期望小于
-$\epsilon$。
-
-假设如下条件成立：
-\begin{equation}
-    \mathbb{E}_{p_{\pi^*}(s)} \left[\pi_{\theta}(a \ne \pi^*(s) \mid s)\right] 
-    = \frac{1}{T} \sum_{t=1}^{T} \mathbb{E}_{p_{\pi^*}(s_t)} \left[\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)\right]
-    \leq \epsilon
-\end{equation}
-在t时刻，$s_t$的状态分布为：
+当奖励函数只与最后一个状态相关时，假设$J(\pi^*)$为专家策略的期望奖励，$J(\pi_{\theta})$为当前策略的期望奖励。
 \begin{align}
-    p_{\theta}(s_t) = 
-    &(1 - Pr[\cup_{t=1}^{t}(\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)]) p_{\pi^*}(s_t) + \nonumber \\
-    &Pr[\cup_{t=1}^{t}(\pi_{\theta}(a_t \ne \pi^*(s_t) \mid s_t)]) p_{\text{mistake}}(s_t)
-\end{align}
-从两边同时减去$ p_{\pi^*}(s_t)$，得到：
-\begin{align}
-    |p_{\theta}(s_t) - p_{\pi^*}(s_t)| 
-    &= \Pr\left[\cup_{t'=1}^{t} \left(\pi_{\theta}(a_{t} \ne \pi^*(s_{t}) \mid s_{t})\right)\right] \cdot |p_{\text{mistake}}(s_t) - p_{\pi^*}(s_t)| \nonumber \\
-    &\leq 2\sum_{t=1}^{T}(\pi_{\theta}(a_{t'} \ne \pi^*(s_{t'}) \mid s_{t'}))
+    {J}(\pi^*) - {J}(\pi_{\theta}) 
+    &= \sum_{t=1}^{T} (E_{p_{\pi^*}(s_t)}r(s_t) - E_{p_{\pi_{\theta}}(s_t)}r(s_t)) r(s_t)\nonumber \\
+    &= \sum_{t=1}^{T} \sum_{s_t} (p_{\pi^*}(s_t)r(s_t) - p_{\pi_{\theta}}(s_t)r(s_t)) \nonumber \\
+    &= \sum_{s_t} (p_{\pi^*}(s_t)r(s_t) - p_{\pi_{\theta}}(s_t)r(s_t)) \nonumber \\
+    &\leq 2\epsilon T R_{\max}
 \end{align}
 所以：
-\begin{align}
-    \sum_{s_t}|p_{\theta}(s_t) - p_{\pi^*}(s_t)| 
-    &\leq 2\sum_{t=1}^{T}\sum_{s_t}p_{\pi^*}(s_t)(\pi_{\theta}(a_{t} \ne \pi^*(s_{t}) \mid s_{t})) \nonumber \\
-    &= 2\sum_{t=1}^{T}E_{p_{\pi^*}(s_t)}[\pi_{\theta}(a_{t} \ne \pi^*(s_{t}) \mid s_{t})] \nonumber \\
-    &= 2T\epsilon
-\end{align}
-Your solution here.
+\begin{equation}
+    {J}(\pi^*) - {J}(\pi_{\theta}) = \mathbb{O}(T \epsilon)
+\end{equation}
 
-\section{Problem 2}
+当为任意奖励时
+\begin{align}
+    {J}(\pi^*) - {J}(\pi_{\theta}) 
+    &= \sum_{t=1}^{T} (E_{p_{\pi^*}(s_t)}r(s_t) - E_{p_{\pi_{\theta}}(s_t)}r(s_t)) r(s_t)\nonumber \\
+    &= \sum_{t=1}^{T} \sum_{s_t} (p_{\pi^*}(s_t)r(s_t) - p_{\pi_{\theta}}(s_t)r(s_t)) \nonumber \\
+    &\leq 2\epsilon T^2 R_{\max}
+\end{align}
+所以：
+\begin{equation}
+    {J}(\pi^*) - {J}(\pi_{\theta}) = \mathbb{O}(T^2 \epsilon)
+\end{equation}
+
+\section{Editing Coding}
+
+\subsection{Part A}
+% Part 3.1 Behavioral Cloning results table framework
+\begin{table}[h!]
+    \centering
+    \caption{Part 3.1: Behavioral Cloning (BC) 结果表。报告两个任务（一个达到至少 \(30\%\) 专家性能，一个未达到）。表中为多条 rollout 的平均回报与标准差。公平对比细节（网络结构：\(n\_\text{layers}=\)?, \(\text{size}=\)?；训练：\(\text{steps/iter}=\)?, \(n\_\text{iter}=\)?；专家数据量：?；评估参数：\(\text{ep\_len}=\)?, \(\text{eval\_batch\_size}=\)?）请在本 caption 中注明。}
+    \label{tab:bc_part3_1}
+    \vspace{0.5em}
+    \begin{tabular}{lcccc}
+    \hline
+    Environment & BC Mean Return & BC Std Return & Expert Mean Return & \% of Expert \\
+    \hline
+    Ant-v4 & 4786.60 & 54.70 & 4681.89 & 102.2\% \\
+    HalfCheetah-v4 &  &  &  &  \\
+    \hline
+    \end{tabular}
+\end{table}
+    
+
+\subsection{Part B}
+
+\section{Discussion}
 
 Your solution here.
 
