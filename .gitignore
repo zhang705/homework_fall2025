@@ -130,3 +130,7 @@ dmypy.json
 
 # data
 data/
+
+# compiled data
+*.pdf
+*.synctex.gz
