@@ -171,15 +171,15 @@ $\epsilon$。
 % Part 3.1 Behavioral Cloning results table framework
 \begin{table}[h!]
     \centering
-    \caption{Part 3.1: Behavioral Cloning (BC) 结果表。报告两个任务（一个达到至少 \(30\%\) 专家性能，一个未达到）。表中为多条 rollout 的平均回报与标准差。公平对比细节（网络结构：\(n\_\text{layers}=\)?, \(\text{size}=\)?；训练：\(\text{steps/iter}=\)?, \(n\_\text{iter}=\)?；专家数据量：?；评估参数：\(\text{ep\_len}=\)?, \(\text{eval\_batch\_size}=\)?）请在本 caption 中注明。}
+    \caption{Part 3.1: Behavioral Cloning (BC) 结果表。报告两个任务（一个达到至少 \(30\%\) 专家性能，一个未达到）。表中为多条 rollout 的平均回报与标准差。公平对比细节（网络结构：\(n\_\text{layers}=\)2, \(\text{size}=\)64；训练：\(\text{steps/iter}=\)500, \(n\_\text{iter}=\)1；专家数据量：2，来自expert\_data\_*.pkl；评估参数：\(\text{ep\_len}=\)1000, \(\text{eval\_batch\_size}=\)5000）请在本 caption 中注明。}
     \label{tab:bc_part3_1}
     \vspace{0.5em}
     \begin{tabular}{lcccc}
     \hline
     Environment & BC Mean Return & BC Std Return & Expert Mean Return & \% of Expert \\
     \hline
-    Ant-v4 & 4786.60 & 54.70 & 4681.89 & 102.2\% \\
-    HalfCheetah-v4 &  &  &  &  \\
+    Ant-v4 & 256.84 & 254.22 & 4681.89 & 5.5\% \\
+    HalfCheetah-v4 & 2009.45 & 114.93 & 4034.80 & 49.8\% \\
     \hline
     \end{tabular}
 \end{table}
