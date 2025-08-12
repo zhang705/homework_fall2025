@@ -18,8 +18,7 @@ from cs285.infrastructure import utils  # 作业提供的常用工具函数
 from cs285.infrastructure.logger import Logger  # 日志记录器（标量与视频）
 from cs285.infrastructure.replay_buffer import ReplayBuffer  # 经验回放缓存
 from cs285.policies.MLP_policy import MLPPolicySL  # 监督学习用 MLP 策略（行为克隆）
-from cs285.policies.loaded_gaussian_policy import LoadedGaussianPolicy  # 预训练的高斯策略（专家）
-
+from cs285.policies.loaded_gaussian_policy import LoadedGaussianPolicy  
 
 # 保存到 TensorBoard 的视频数量上限  # 注：仅用于可视化抽样的少量轨迹
 MAX_NVIDEO = 2
@@ -27,7 +26,6 @@ MAX_VIDEO_LEN = 40  # 视频最大长度（稍后会被设为 episode 长度）
 
 # MuJoCo 相关环境名称（作业中可用）
 MJ_ENV_NAMES = ["Ant-v4", "Walker2d-v4", "HalfCheetah-v4", "Hopper-v4"]
-
 
 def run_training_loop(params):  # 训练主循环（支持 BC 与 DAgger）
     """
