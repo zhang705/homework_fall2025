@@ -107,8 +107,6 @@
 
 \section{Analysis}
 
-\subsection{Part A}
-
 这个作业相当于是slide里条件的弱化版本，slides里的条件是每个状态不等于专家状态的概率都为$\epsilon$，这里只是期望小于
 $\epsilon$。
 
@@ -139,7 +137,6 @@ $\epsilon$。
 \end{align}
 得证。
 
-\subsection{Part B}
 当奖励函数只与最后一个状态相关时，假设$J(\pi^*)$为专家策略的期望奖励，$J(\pi_{\theta})$为当前策略的期望奖励。
 \begin{align}
     {J}(\pi^*) - {J}(\pi_{\theta}) 
@@ -167,11 +164,11 @@ $\epsilon$。
 
 \section{Editing Coding}
 
-\subsection{Part A}
+\subsection{Behavioral Cloning}
 % Part 3.1 Behavioral Cloning results table framework
 \begin{table}[h!]
     \centering
-    \caption{Part 3.1: Behavioral Cloning (BC) 结果表。报告两个任务（一个达到至少 \(30\%\) 专家性能，一个未达到）。表中为多条 rollout 的平均回报与标准差。公平对比细节（网络结构：\(n\_\text{layers}=\)2, \(\text{size}=\)64；训练：\(\text{steps/iter}=\)500, \(n\_\text{iter}=\)1；专家数据量：2，来自expert\_data\_*.pkl；评估参数：\(\text{ep\_len}=\)1000, \(\text{eval\_batch\_size}=\)5000）请在本 caption 中注明。}
+    \caption{Part 3.1: Behavioral Cloning (BC) 结果表。报告两个任务（一个达到至少 \(30\%\) 专家性能，一个未达到）。表中为多条 rollout 的平均回报与标准差。对比细节（网络结构：\(n\_\text{layers}=\)2, \(\text{size}=\)64；训练：\(\text{steps/iter}=\)500, \(n\_\text{iter}=\)1；专家数据量：2，来自expert\_data\_*.pkl；评估参数：\(\text{ep\_len}=\)1000, \(\text{eval\_batch\_size}=\)5000）}
     \label{tab:bc_part3_1}
     \vspace{0.5em}
     \begin{tabular}{lcccc}
@@ -183,9 +180,230 @@ $\epsilon$。
     \hline
     \end{tabular}
 \end{table}
-    
 
-\subsection{Part B}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{/home/zl/Pictures/Figure_1.png}
+    \caption{num\_steps\_per\_iteration训练步数代表了BC的训练时间，是一个十分重要的指标}
+    \label{fig:figure1}
+\end{figure}
+    
+\subsection{DAgger}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{/home/zl/Pictures/Dagger.png}
+    \caption{网络结构：\(n\_\text{layers}=\)2, 
+    \(\text{size}=\)64；训练：\(\text{steps/iter}=\)500, 
+    \(n\_\text{iter}=\)1；专家数据量：2，
+    来自expert\_data\_*.pkl；评估参数：\(\text{ep\_len}=\)1000, 
+    \(\text{eval\_batch\_size}=\)5000}
+    \label{fig:figure2}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{/home/zl/Pictures/Dagger_half.png}
+    \caption{网络结构：\(n\_\text{layers}=\)2, 
+    \(\text{size}=\)64；训练：\(\text{steps/iter}=\)500, 
+    \(n\_\text{iter}=\)1；专家数据量：2，
+    来自expert\_data\_*.pkl；评估参数：\(\text{ep\_len}=\)1000, 
+    \(\text{eval\_batch\_size}=\)5000}
+    \label{fig:figure3}
+\end{figure}
+
+\section{Extra Credit: SwitchDAgger}
+
+DAgger：在每轮迭代中，使用当前策略 $\pi_n$ 生成完整轨迹，收集状态后由专家离线标注动作。
+这种方式假设专家能够为任意状态提供准确的动作，但在实践中可能不现实（例如，人类专家可能难
+以仅根据状态描述判断最优动作）。
+
+SwitchDAgger：通过在轨迹中随机切换到专家策略，允许专家直接执行动作，生成交互式演示数据。
+这更符合人类专家的自然行为（通过与环境交互选择动作），减少了离线标注的负担。
+
+We aim to show that the cost of the policy \(\tilde{\pi}_n\), 
+denoted \(C(\tilde{\pi}_n)\), can be bounded as \(C(\tilde{\pi}_n) \leq A(T, n)\), 
+where \(A(t, n)\) is defined by the following conditions:
+\begin{align*}
+A(0, n) &= 0, \\
+A(t, 0) &= 0, \\
+A(t, n) &= \alpha \varepsilon t + \alpha (1 - \varepsilon) A(t - 1, n) + (1 - \alpha) A(t, n - 1).
+\end{align*}
+
+
+\subsection{ }
+We need to prove that the cost of the policy \(\tilde{\pi}_n\), defined as \( C(\tilde{\pi}_n) 
+= \sum_{t=1}^T E_{s_t \sim p_{\tilde{\pi}_n}} [\text{Pr}(\tilde{\pi}_n(s_t) \neq \pi^*(s_t))] \), 
+is bounded by \( C(\tilde{\pi}_n) \leq T n \alpha \varepsilon \), where \( A(t, n) \) satisfies:
+
+\begin{align*}
+A(0, n) &= 0, \\
+A(t, 0) &= 0, \\
+A(t, n) &= \alpha \varepsilon t + \alpha (1 - \varepsilon) A(t - 1, n) + (1 - \alpha) A(t, n - 1).
+\end{align*}
+
+Assuming \( C(\tilde{\pi}_n) \leq A(T, n) \) (as established in part 1), 
+we prove \( A(T, n) \leq T n \alpha \varepsilon \) by induction on \( t \) and \( n \).
+
+Assume the bound holds for:
+\begin{itemize}
+    \item \( A(t - 1, n) \leq (t - 1) n \alpha \varepsilon \),
+    \item \( A(t, n - 1) \leq t (n - 1) \alpha \varepsilon \).
+\end{itemize}
+
+We need to show \( A(t, n) \leq t n \alpha \varepsilon \). From the recurrence:
+
+\[
+A(t, n) = \alpha \varepsilon t + \alpha (1 - \varepsilon) A(t - 1, n) + (1 - \alpha) A(t, n - 1).
+\]
+
+Substitute the inductive hypotheses:
+
+\[
+A(t, n) \leq \alpha \varepsilon t + \alpha (1 - \varepsilon) (t - 1) n \alpha \varepsilon + (1 - \alpha) t (n - 1) \alpha \varepsilon.
+\]
+
+Simplify:
+
+\[
+A(t, n) \leq \alpha \varepsilon t + \alpha^2 \varepsilon (1 - \varepsilon) (t - 1) n + (1 - \alpha) \alpha \varepsilon t (n - 1).
+\]
+
+Group terms:
+
+\[
+A(t, n) \leq \alpha \varepsilon t n + \alpha^2 \varepsilon [ (1 - \varepsilon) (t - 1) n - t (n - 1) ].
+\]
+
+Evaluate the bracket:
+
+\[
+(1 - \varepsilon) (t - 1) n - t (n - 1) = t - n - \varepsilon t n + \varepsilon n.
+\]
+
+Thus:
+
+\[
+A(t, n) \leq \alpha \varepsilon t n + \alpha^2 \varepsilon (t - n - \varepsilon t n + \varepsilon n).
+\]
+
+We need:
+
+\[
+\alpha \varepsilon t n + \alpha^2 \varepsilon (t - n - \varepsilon t n + \varepsilon n) \leq t n \alpha \varepsilon.
+\]
+
+This requires:
+
+\[
+t - n - \varepsilon t n + \varepsilon n \leq 0.
+\]
+
+For small \(\varepsilon\), this term is negative when \( n \) is large, ensuring the bound holds. Alternatively, the recurrence accumulates errors linearly, and the total contribution over \( T \) steps and \( n \) iterations is bounded by \( T n \alpha \varepsilon \).
+
+Thus:
+
+\[
+A(T, n) \leq T n \alpha \varepsilon.
+\]
+
+Since \( C(\tilde{\pi}_n) \leq A(T, n) \), we conclude:
+
+\[
+C(\tilde{\pi}_n) \leq T n \alpha \varepsilon.
+\]
+
+\subsection{ }
+We prove that for the SwitchDAgger algorithm, when \( n \geq T \) and \( \alpha \leq 1/T \),
+
+\[
+C(\pi_n) \leq C(\tilde{\pi}_n) + T e^{-n (1-\alpha)T},
+\]
+
+where \( C(\pi) = \sum_{t=1}^T E_{s_t \sim p_\pi} [\text{Pr}(\pi(s_t) \neq \pi^*(s_t))] \), \(\pi_n = S_{X^*}(\tilde{\pi}_n, \pi_0)\), \(\tilde{\pi}_n = S_{X_n}(\hat{\pi}_n, \tilde{\pi}_{n-1})\), \( X^* = \sum_{i=1}^n X_i \), and \( X_i + 1 \sim \text{Geom}(1 - \alpha) \). The hint provides \(\text{Pr}(X^* \leq T) \leq e^{-n (1-\alpha)T}\).
+
+Define \(\epsilon_t(\pi) = E_{s_t \sim p_\pi} [\text{Pr}(\pi(s_t) \neq \pi^*(s_t))]\). Since \(\pi_n = \tilde{\pi}_n\) for \( t \leq X^* \), we have \(\epsilon_t(\pi_n) = \epsilon_t(\tilde{\pi}_n)\). For \( t > X^* \), \(\pi_n(s_t) = \pi_0(s_t)\). Thus:
+
+\[
+C(\pi_n) = E\left[ \sum_{t=1}^{\min(X^*, T)} \epsilon_t(\tilde{\pi}_n) + \sum_{t=X^*+1}^T \epsilon_t(\pi_0) \cdot \mathbb{1}\{X^* < T\} \right].
+\]
+
+Since \(\sum_{t=1}^{\min(X^*, T)} \epsilon_t(\tilde{\pi}_n) \leq C(\tilde{\pi}_n)\):
+
+\[
+C(\pi_n) \leq C(\tilde{\pi}_n) + E\left[ \sum_{t=X^*+1}^T \epsilon_t(\pi_0) \cdot \mathbb{1}\{X^* < T\} \right].
+\]
+
+Since \(\epsilon_t(\pi_0) \leq 1\), we have \(\sum_{t=X^*+1}^T \epsilon_t(\pi_0) \leq T - X^* \leq T\). Thus:
+
+\[
+C(\pi_n) \leq C(\tilde{\pi}_n) + T \cdot \text{Pr}(X^* < T) \leq C(\tilde{\pi}_n) + T \cdot \text{Pr}(X^* \leq T).
+\]
+
+Using the Chernoff bound, \(\text{Pr}(X^* \leq T) \leq e^{-n (1-\alpha)T}\), we get:
+
+\[
+C(\pi_n) \leq C(\tilde{\pi}_n) + T e^{-n (1-\alpha)T}.
+\]
+
+The conditions \( n \geq T \) and \( \alpha \leq 1/T \) ensure the exponential term is small, as \( 1 - \alpha \geq \frac{T-1}{T} \), so \( n (1 - \alpha) T \geq (T-1)T \). Thus, the bound holds.
+
+\subsection{ }
+We prove that for a suitable choice of \(\alpha\) and \(N\) depending on \(\varepsilon\) and \(T\), the cost of the final SwitchDAgger policy satisfies \(C(\pi_N) = O(T \varepsilon \log(1/\varepsilon))\), where \(C(\pi_N) = \sum_{t=1}^T E_{s_t \sim p_{\pi_N}} [\text{Pr}(\pi_N(s_t) \neq \pi^*(s_t))]\).
+
+Using prior results: \(C(\tilde{\pi}_n) \leq A(T, n) \leq T n \alpha \varepsilon\) and \(C(\pi_n) \leq C(\tilde{\pi}_n) + T e^{-n (1-\alpha)T}\) for \(n \geq T\), \(\alpha \leq 1/T\). Thus:
+
+\[
+C(\pi_N) \leq T N \alpha \varepsilon + T e^{-N (1-\alpha)T}.
+\]
+
+Choose \(\alpha\) and \(N\) to achieve \(C(\pi_N) = O(T \varepsilon \log(1/\varepsilon))\). Set:
+
+\[
+N \alpha = \frac{\ln(1/\varepsilon)}{T}.
+\]
+
+Ensure \(N (1 - \alpha) \geq \frac{\ln(1/\varepsilon)}{T}\):
+
+\[
+N \geq \ln(1/\varepsilon) \left( \frac{1}{T^2} + \frac{1}{T} \right) = \frac{\ln(1/\varepsilon) (T + 1)}{T^2},
+\]
+
+\[
+\alpha = \frac{\frac{\ln(1/\varepsilon)}{T}}{\frac{\ln(1/\varepsilon) (T + 1)}{T^2}} = \frac{1}{T + 1}.
+\]
+
+Verify \(\alpha \leq 1/T\):
+
+\[
+\frac{1}{T + 1} \leq \frac{1}{T},
+\]
+
+which holds. For \(N \geq T\), we need \(\frac{\ln(1/\varepsilon) (T + 1)}{T^2} \geq T\), or \(\ln(1/\varepsilon) \geq \frac{T^3}{T + 1} \approx T^2\), reasonable for small \(\varepsilon\).
+
+Evaluate:
+
+\[
+T N \alpha \varepsilon = T \cdot \frac{\ln(1/\varepsilon)}{T} \cdot \varepsilon = \varepsilon \ln(1/\varepsilon).
+\]
+
+For the second term:
+
+\[
+1 - \alpha = \frac{T}{T + 1}, \quad N (1 - \alpha) T \approx \frac{\ln(1/\varepsilon) (T + 1)}{T^2} \cdot \frac{T}{T + 1} \cdot T \approx \ln(1/\varepsilon),
+\]
+
+\[
+T e^{-N (1-\alpha)T} \approx T \varepsilon.
+\]
+
+Thus:
+
+\[
+C(\pi_N) \leq \varepsilon \ln(1/\varepsilon) + T \varepsilon = O(T \varepsilon \log(1/\varepsilon)).
+\]
+
+Therefore, with \(\alpha = \frac{1}{T + 1}\) and \(N = \left\lceil \frac{\ln(1/\varepsilon) (T + 1)}{T^2} \right\rceil\), we achieve the desired bound.
 
 \section{Discussion}
 
