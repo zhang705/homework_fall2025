@@ -42,6 +42,17 @@ B. Install on system Python:
 
 ## Troubleshooting 
 
+× Failed to build installable wheels for some pyproject.toml based projects
+╰─> box2d-py
+```
+# 先安装系统依赖
+sudo apt-get update
+sudo apt-get install swig
+```
+```
+pip install -r requirements.txt
+```
+
 You may encounter the following GLFW errors if running on machine without a display:
 
 GLFWError: (65544) b'X11: The DISPLAY environment variable is missing'
