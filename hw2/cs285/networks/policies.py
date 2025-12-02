@@ -59,9 +59,10 @@ class MLPPolicy(nn.Module):
     def get_action(self, obs: np.ndarray) -> np.ndarray:
         """Takes a single observation (as a numpy array) and returns a single action (as a numpy array)."""
         # TODO: implement get_action
-        action = None
-
-        return action
+        obs = ptu.from_numpy(obs)[None]
+        dist = self.forward(obs)
+        action = dist.sample()
+        return ptu.to_numpy(action)[0]
 
     def forward(self, obs: torch.FloatTensor):
         """
@@ -69,13 +70,17 @@ class MLPPolicy(nn.Module):
         able to differentiate through it. For example, you can return a torch.FloatTensor. You can also return more
         flexible objects, such as a `torch.distributions.Distribution` object. It's up to you!
         """
-        if self.discrete:
+        if self.discrete: 
             # TODO: define the forward pass for a policy with a discrete action space.
-            pass
+            logits = self.logits_net(obs)
+            dist = distributions.Categorical(logits=logits)
+            return dist
         else:
             # TODO: define the forward pass for a policy with a continuous action space.
-            pass
-        return None
+            mean = self.mean_net(obs)
+            std = torch.exp(self.logstd)
+            dist = distributions.Normal(mean, std)
+            return dist
 
     def update(self, obs: np.ndarray, actions: np.ndarray, *args, **kwargs) -> dict:
         """Performs one iteration of gradient descent on the provided batch of data."""
@@ -95,9 +100,25 @@ class MLPPolicyPG(MLPPolicy):
         obs = ptu.from_numpy(obs)
         actions = ptu.from_numpy(actions)
         advantages = ptu.from_numpy(advantages)
+        
+        # Convert actions to long for discrete action spaces
+        if self.discrete:
+            actions = actions.long()
 
         # TODO: implement the policy gradient actor update.
-        loss = None
+        dist = self.forward(obs)
+        log_probs = dist.log_prob(actions)
+        
+        # For continuous actions, log_prob returns (batch_size, action_dim)
+        # We need to sum over action dimensions to get (batch_size,)
+        if not self.discrete:
+            log_probs = log_probs.sum(dim=1)
+        
+        loss = -torch.mean(advantages * log_probs)
+        
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
         return {
             "Actor Loss": ptu.to_numpy(loss),

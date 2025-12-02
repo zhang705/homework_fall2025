@@ -21,3 +21,65 @@ There are TODOs in these files:
 - `cs285/infrastructure/utils.py`
 
 See the [Assignment PDF](hw2.pdf) for more info.
+
+```bash
+python cs285/scripts/run_hw2.py --env_name CartPole-v0 -n 100 -b 1000 \
+--exp_name cartpole
+
+python cs285/scripts/run_hw2.py --env_name CartPole-v0 -n 100 -b 1000 \
+-rtg --exp_name cartpole_rtg
+
+python cs285/scripts/run_hw2.py --env_name CartPole-v0 -n 100 -b 1000 \
+-na --exp_name cartpole_na
+
+python cs285/scripts/run_hw2.py --env_name CartPole-v0 -n 100 -b 1000 \
+-rtg -na --exp_name cartpole_rtg_na
+```
+
+```bash
+python cs285/scripts/run_hw2.py --env_name CartPole-v0 -n 100 -b 4000 \
+--exp_name cartpole_lb
+
+python cs285/scripts/run_hw2.py --env_name CartPole-v0 -n 100 -b 4000 \
+-rtg --exp_name cartpole_lb_rtg
+
+python cs285/scripts/run_hw2.py --env_name CartPole-v0 -n 100 -b 4000 \
+-na --exp_name cartpole_lb_na
+
+python cs285/scripts/run_hw2.py --env_name CartPole-v0 -n 100 -b 4000 \
+-rtg -na --exp_name cartpole_lb_rtg_na
+```
+
+### 4.2
+```bash
+# No baseline
+python cs285/scripts/run_hw2.py --env_name HalfCheetah-v4 \
+-n 100 -b 5000 -rtg --discount 0.95 -lr 0.01 \
+--exp_name cheetah
+# Baseline
+python cs285/scripts/run_hw2.py --env_name HalfCheetah-v4 \
+-n 100 -b 5000 -rtg --discount 0.95 -lr 0.01 \
+--use_baseline -blr 0.01 -bgs 5 --exp_name cheetah_baseline
+```
+
+### 5
+```bash
+# No baseline
+python cs285/scripts/run_hw2.py \
+--env_name LunarLander-v2 --ep_len 1000 \
+--discount 0.99 -n 300 -l 3 -s 128 -b 2000 -lr 0.001 \
+--use_reward_to_go --use_baseline --gae_lambda <λ> \
+--exp_name lunar_lander_lambda<λ>
+```
+
+### 6
+```bash
+# No baseline
+for seed in $(seq 1 5); do
+python cs285/scripts/run_hw2.py --env_name InvertedPendulum-v4 -n 100 \
+--exp_name pendulum_default_s$seed \
+-rtg --use_baseline -na \
+--batch_size 5000 \
+--seed $seed
+done
+```
