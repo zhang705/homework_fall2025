@@ -52,6 +52,8 @@ def sample_trajectory(
         if rollout_done:
             break
 
+    env.close()
+
     return {
         "observation": np.array(obs, dtype=np.float32),
         "image_obs": np.array(image_obs, dtype=np.uint8),

@@ -171,7 +171,11 @@ class PGAgent(nn.Module):
         Note that all entries of the output list should be the exact same because each sum is from 0 to T (and doesn't
         involve t)!
         """
-        total_discounted_return = sum(r * (self.gamma ** t) for t, r in enumerate(rewards))
+        total_discounted_return = 0.0
+        gamma_power = 1.0  # gamma^0
+        for r in rewards:
+            total_discounted_return += r * gamma_power
+            gamma_power *= self.gamma
         return [total_discounted_return] * len(rewards)
 
 
@@ -180,4 +184,9 @@ class PGAgent(nn.Module):
         Helper function which takes a list of rewards {r_0, r_1, ..., r_t', ... r_T} and returns a list where the entry
         in each index t' is sum_{t'=t}^T gamma^(t'-t) * r_{t'}.
         """
-        return [sum(rewards[j] * (self.gamma ** (j - i)) for j in range(i, len(rewards))) for i in range(len(rewards))]    
+        T = len(rewards) - 1
+        rtg = [0.0] * len(rewards)
+        rtg[T] = rewards[T]
+        for i in reversed(range(T)):
+            rtg[i] = rewards[i] + self.gamma * rtg[i + 1]
+        return rtg    
